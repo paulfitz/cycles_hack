@@ -22,7 +22,7 @@
 #include "device.h"
 #include "device_intern.h"
 
-#include "util_cuda.h"
+//#include "util_cuda.h"
 #include "util_debug.h"
 #include "util_foreach.h"
 #include "util_math.h"
@@ -122,6 +122,34 @@ void Device::draw_pixels(device_memory& rgba, int y, int w, int h, int dy, int w
 {
 	pixels_copy_from(rgba, y, w, h);
 
+	uint8_t *pixels = (uint8_t*)rgba.data_pointer;
+	/* for multi devices, this assumes the ineffecient method that we allocate
+	   all pixels on the device even though we only render to a subset */
+	pixels += 4*y*w;
+
+	printf("I think we have an image of size %d %d\n", w, h);
+	static int ct = 0;
+	char buf[1000];
+	sprintf(buf,"test_%06d.ppm",ct);
+	ct++;
+	FILE *fp = fopen(buf, "wb");
+	if (!fp) {
+	  printf("cannot open file for writing\n");
+	  return;
+        } else {
+	  const int inc = w*4;
+	  fprintf(fp, "P6\n%d %d\n%d\n", w, h, 255);
+	  for (int yy = 0; yy < h; yy++) {
+	    char *src = (char *)pixels + ((h-yy-1)*w*4);
+	    for (int xx = 0; xx < w; xx++) {
+	      fwrite((void *) src, 1, (size_t) (3), fp);
+	      src += 4;
+	    }
+	  }
+	  fclose(fp);
+        }
+	printf("wrote to %s (hacked in %s)\n", buf, __FILE__);
+#ifndef NO_VIEWER
 	if(transparent) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -130,12 +158,6 @@ void Device::draw_pixels(device_memory& rgba, int y, int w, int h, int dy, int w
 	glPixelZoom((float)width/(float)w, (float)height/(float)h);
 	glRasterPos2f(0, dy);
 
-	uint8_t *pixels = (uint8_t*)rgba.data_pointer;
-
-	/* for multi devices, this assumes the ineffecient method that we allocate
-	   all pixels on the device even though we only render to a subset */
-	pixels += 4*y*w;
-
 	glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	glRasterPos2f(0.0f, 0.0f);
@@ -143,6 +165,7 @@ void Device::draw_pixels(device_memory& rgba, int y, int w, int h, int dy, int w
 
 	if(transparent)
 		glDisable(GL_BLEND);
+#endif
 }
 
 Device *Device::create(DeviceInfo& info, bool background, int threads)

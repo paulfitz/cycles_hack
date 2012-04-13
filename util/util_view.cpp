@@ -24,10 +24,12 @@
 #include "util_time.h"
 #include "util_view.h"
 
+#ifndef NO_VIEWER
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
+#endif
 #endif
 
 CCL_NAMESPACE_BEGIN
@@ -52,16 +54,21 @@ struct View {
 
 static void view_display_text(int x, int y, const char *text)
 {
+#ifndef NO_VIEWER
 	const char *c;
 
 	glRasterPos3f(x, y, 0);
 
 	for(c=text; *c != '\0'; c++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *c);
+#else
+	printf("*** %s\n", text);
+#endif
 }
 
 void view_display_info(const char *info)
 {
+#ifndef NO_VIEWER
 	const int height = 20;
 
 	glEnable(GL_BLEND);
@@ -75,6 +82,9 @@ void view_display_info(const char *info)
 	view_display_text(10, 7 + V.height - height, info);
 
 	glColor3f(1.0f, 1.0f, 1.0f);
+#else
+	printf("*** INFO: %s\n", info);
+#endif
 }
 
 static void view_display()
@@ -88,6 +98,7 @@ static void view_display()
 	  V.moref();
 	}
 
+#ifndef NO_VIEWER
 	glClearColor(0.05f, 0.05f, 0.05f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -99,15 +110,19 @@ static void view_display()
 	glLoadIdentity();
 
 	glRasterPos3f(0, 0, 0);
+#endif
 
 	if(V.display)
 		V.display();
 
+#ifndef NO_VIEWER
 	glutSwapBuffers();
+#endif
 }
 
 static void view_reshape(int width, int height)
 {
+#ifndef NO_VIEWER
 	if(width <= 0 || height <= 0)
 		return;
 	
@@ -122,12 +137,15 @@ static void view_reshape(int width, int height)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+#endif
+
 	if(V.resize)
 		V.resize(width, height);
 }
 
 static void view_keyboard(unsigned char key, int x, int y)
 {
+#ifndef NO_VIEWER
 	if(V.keyboard)
 		V.keyboard(key);
 
@@ -137,16 +155,21 @@ static void view_keyboard(unsigned char key, int x, int y)
 		if(V.exitf) V.exitf();
 		exit(0);
 	}
+#endif
 }
 
 void view_idle()
 {
 	if(V.redraw) {
 		V.redraw = false;
+#ifndef NO_VIEWER
 		glutPostRedisplay();
+#endif
 	}
 
+#ifndef NO_VIEWER
 	time_sleep(0.1f);
+#endif
 }
 
 void view_main_loop(const char *title, int width, int height,
@@ -170,6 +193,7 @@ void view_main_loop(const char *title, int width, int height,
 	V.display = display;
 	V.keyboard = keyboard;
 
+#ifndef NO_VIEWER
 	glutInit(&argc, &argv);
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(0, 0);
@@ -179,15 +203,22 @@ void view_main_loop(const char *title, int width, int height,
 #ifndef __APPLE__
 	glewInit();
 #endif
+#endif
 
 	view_reshape(width, height);
 
+#ifndef NO_VIEWER
 	glutDisplayFunc(view_display);
 	glutIdleFunc(view_idle);
 	glutReshapeFunc(view_reshape);
 	glutKeyboardFunc(view_keyboard);
 
 	glutMainLoop();
+#else
+	while (true) {
+	  view_display();
+	}
+#endif
 }
 
 void view_redraw()

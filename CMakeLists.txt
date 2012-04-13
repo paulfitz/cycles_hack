@@ -1,5 +1,25 @@
 cmake_minimum_required(VERSION 2.8)
 
+
+set(HACK_RETAIN_VIEWER FALSE)
+if (HACK_RETAIN_VIEWER) 
+  message(STATUS "sparing opengl")
+else()
+  add_definitions(-DNO_VIEWER=1)
+endif()
+
+
+
+
+
+
+
+
+
+
+
+
+
 SET(WITH_CYCLES_TEST ON)
 
 set(CYCLES_INSTALL_PATH "scripts/addons/cycles")

@@ -25,12 +25,14 @@ set(LIBRARIES
 
 #link_libraries(glut GLEW boost_date_time boost_filesystem boost_thread boost_regex boost_system OpenImageIO)
 
-link_libraries(glut GLEW  )
+if (HACK_RETAIN_VIEWER) 
+  link_libraries(glut GLEW  )
+endif()
 
 link_directories(${OPENIMAGEIO_LIBPATH} ${BOOST_LIBPATH})
 
 if(WITH_CYCLES_TEST)
-	list(APPEND LIBRARIES ${GLUT_LIBRARIES})
+#	list(APPEND LIBRARIES ${GLUT_LIBRARIES})
 endif()
 
 if(WITH_CYCLES_OSL)

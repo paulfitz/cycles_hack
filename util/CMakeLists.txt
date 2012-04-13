@@ -7,7 +7,7 @@ set(INC
 
 set(SRC
 	util_cache.cpp
-	util_cuda.cpp
+#	util_cuda.cpp
 	util_dynlib.cpp
 	util_md5.cpp
 	util_memarena.cpp

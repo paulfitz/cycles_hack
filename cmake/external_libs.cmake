@@ -5,16 +5,16 @@
 if(WITH_CYCLES_TEST)
 	set(GLUT_ROOT_PATH ${CYCLES_GLUT})
 
-	find_package(GLUT)
-	message(STATUS "GLUT_FOUND=${GLUT_FOUND}")
+#	find_package(GLUT)
+#	message(STATUS "GLUT_FOUND=${GLUT_FOUND}")
 
-	include_directories(${GLUT_INCLUDE_DIR})
+#	include_directories(${GLUT_INCLUDE_DIR})
 endif()
 
 if(WITH_BUILTIN_GLEW)
-	set(CYCLES_GLEW_LIBRARY extern_glew)
+#	set(CYCLES_GLEW_LIBRARY extern_glew)
 else()
-	set(CYCLES_GLEW_LIBRARY ${GLEW_LIBRARY})
+#	set(CYCLES_GLEW_LIBRARY ${GLEW_LIBRARY})
 endif()
 
 ###########################################################################

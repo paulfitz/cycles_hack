@@ -22,11 +22,15 @@
 /* OpenGL header includes, used everywhere we use OpenGL, to deal with
  * platform differences in one central place. */
 
+#ifndef NO_VIEWER
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else
 #include <GL/glew.h>
+#endif
+
 #endif
 
 #endif /* __UTIL_OPENGL_H__ */
