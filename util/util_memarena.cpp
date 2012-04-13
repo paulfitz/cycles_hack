@@ -20,6 +20,8 @@
 #include "util_math.h"
 #include "util_memarena.h"
 
+#include <string.h>
+
 CCL_NAMESPACE_BEGIN
 
 MemArena::MemArena(bool use_calloc_, size_t buffer_size_)

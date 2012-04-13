@@ -8,7 +8,8 @@ else()
   add_definitions(-DNO_VIEWER=1)
 endif()
 
-
+# we replace BOOST_FOREACH with native for
+add_definitions(-std=c++0x)
 
 
 

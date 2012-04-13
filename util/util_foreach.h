@@ -21,8 +21,11 @@
 
 /* Use Boost to get nice foreach() loops for STL data structures. */
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
+//#include <boost/foreach.hpp>
+//#define foreach BOOST_FOREACH
+
+// use C++11
+#define foreach(x,y) for(x : y)
 
 #endif /* __UTIL_FOREACH_H__ */
 

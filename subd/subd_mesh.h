@@ -81,7 +81,9 @@ protected:
 		int p0, p1;
 	};
 
-	map<Key, SubdEdge *> edge_map;
+	typedef map<Key, SubdEdge*> Edgy;
+
+	Edgy edge_map;
 };
 
 CCL_NAMESPACE_END
