@@ -28,6 +28,8 @@
 
 #include "kernel_montecarlo.h"
 
+#include <algorithm>
+
 CCL_NAMESPACE_BEGIN
 
 static void dump_background_pixels(Device *device, DeviceScene *dscene, int res, vector<float3>& pixels)

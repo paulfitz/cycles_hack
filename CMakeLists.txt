@@ -10,8 +10,12 @@ endif()
 
 # we replace BOOST_FOREACH with native for
 add_definitions(-std=c++0x)
+# add_definitions(-std=c++11)
 
-
+option(CREATE_SHARED_LIBRARIES "Compile shared libraries rather than static" FALSE)
+if (CREATE_SHARED_LIBRARIES)
+  set(BUILD_SHARED_LIBS ON)
+endif ()
 
 
 

@@ -20,13 +20,13 @@
 #define __UTIL_MAP_H__
 
 #include <map>
-#include <boost/tr1/unordered_map.hpp>
+#include <unordered_map>
 
 CCL_NAMESPACE_BEGIN
 
 using std::map;
 using std::pair;
-using std::tr1::unordered_map;
+using std::unordered_map;
 
 CCL_NAMESPACE_END
 

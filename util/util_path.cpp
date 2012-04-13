@@ -208,6 +208,7 @@ static bool path_read_text(const string& path, string& text)
 
 	return true;
 #endif
+	return false;
 }
 
 string path_source_replace_includes(const string& source_, const string& path)

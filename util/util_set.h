@@ -20,12 +20,13 @@
 #define __UTIL_SET_H__
 
 #include <set>
-#include <boost/tr1/unordered_set.hpp>
+#include <unordered_set>
+//#include <boost/tr1/unordered_set.hpp>
 
 CCL_NAMESPACE_BEGIN
 
 using std::set;
-using std::tr1::unordered_set;
+using std::unordered_set;
 
 CCL_NAMESPACE_END
 

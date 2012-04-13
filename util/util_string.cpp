@@ -18,8 +18,9 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <assert.h>
 
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 
 #include "util_foreach.h"
 #include "util_string.h"
@@ -79,13 +80,34 @@ bool string_iequals(const string& a, const string& b)
 
 void string_split(vector<string>& tokens, const string& str, const string& separators)
 {
-	vector<string> split;
+  string str_copy = str + separators[0];
+  vector<string> split;
 
-	boost::split(split, str, boost::is_any_of(separators), boost::token_compress_on);
+  //vector<string> split2;
+  //boost::split(split2, str, boost::is_any_of(separators), boost::token_compress_on);
 
-	foreach(const string& token, split)
-		if(token != "")
-			tokens.push_back(token);
+  char *saveptr = (char *)str_copy.c_str();
+  char *initptr = saveptr;
+  char *result = NULL;
+  do {
+    result = strtok_r(initptr,separators.c_str(),&saveptr);
+    if (result) split.push_back(result);
+    initptr = NULL;
+  } while (result!=NULL);
+
+  /*
+  if (split!=split2) {
+    printf("MISMATCH!\n");
+    printf("string [%s] delim [%s]\n", str.c_str(), separators.c_str());
+    for (string s : split) { printf("[%s] ", s.c_str()); } printf("\n");
+    for (string s : split2) { printf("[%s] ", s.c_str()); } printf("\n");
+    //exit(1);
+  }
+  */
+
+  foreach(const string& token, split)
+    if(token != "")
+      tokens.push_back(token);
 }
 
 CCL_NAMESPACE_END
