@@ -35,6 +35,8 @@
 
 #include "cycles_xml.h"
 
+#define function_bind(x) (x)
+
 CCL_NAMESPACE_BEGIN
 
 const TypeDesc TypeDesc::TypeColor("color");

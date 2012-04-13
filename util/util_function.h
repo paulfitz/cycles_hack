@@ -19,13 +19,18 @@
 #ifndef __UTIL_FUNCTION_H__
 #define __UTIL_FUNCTION_H__
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+//#include <boost/bind.hpp>
+//#include <boost/function.hpp>
+
+//boost::function<void(void)>
+typedef void (*boost_function_void_void)(void);
 
 CCL_NAMESPACE_BEGIN
 
-using boost::function;
-#define function_bind boost::bind
+
+
+//using boost::function;
+//#define function_bind boost::bind
 
 CCL_NAMESPACE_END
 

@@ -85,7 +85,7 @@ public:
 		return cancel_message;
 	}
 
-	void set_cancel_callback(boost::function<void(void)> function)
+	void set_cancel_callback(boost_function_void_void function)
 	{
 		cancel_cb = function;
 	}
@@ -157,15 +157,15 @@ public:
 			update_cb();
 	}
 
-	void set_update_callback(boost::function<void(void)> function)
+	void set_update_callback(boost_function_void_void function)
 	{
 		update_cb = function;
 	}
 
 protected:
 	thread_mutex progress_mutex;
-	boost::function<void(void)> update_cb;
-	boost::function<void(void)> cancel_cb;
+	boost_function_void_void update_cb;
+	boost_function_void_void cancel_cb;
 
 	int sample;
 
