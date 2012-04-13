@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.6)
 
 SET(WITH_CYCLES_TEST ON)
 
