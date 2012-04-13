@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 SET(WITH_CYCLES_TEST ON)
 
@@ -26,7 +26,7 @@ endif()
 
 # add_definitions(${BOOST_DEFINITIONS} ${OPENIMAGEIO_DEFINITIONS})
 
-add_definitions(-DCCL_NAMESPACE_BEGIN=namespace\\\ ccl\\\ {)
+add_definitions(-DCCL_NAMESPACE_BEGIN=namespace\ ccl\ {)
 add_definitions(-DCCL_NAMESPACE_END=})
 
 if(WITH_CYCLES_OPTIMIZED_KERNEL)
