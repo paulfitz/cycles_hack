@@ -55,6 +55,7 @@ ShaderNode::ShaderNode(const char *name_)
 	name = name_;
 	id = -1;
 	bump = SHADER_BUMP_NONE;
+	proxy = false;
 }
 
 ShaderNode::~ShaderNode()
@@ -295,7 +296,9 @@ void ShaderGraph::copy_nodes(set<ShaderNode*>& nodes, map<ShaderNode*, ShaderNod
 void ShaderGraph::remove_proxy_nodes(vector<bool>& removed)
 {
 	foreach(ShaderNode *node, nodes) {
-		ProxyNode *proxy = dynamic_cast<ProxyNode*>(node);
+	  //ProxyNode *proxy = dynamic_cast<ProxyNode*>(node);
+	  ProxyNode *proxy = NULL;
+	  if (node->proxy) proxy = (ProxyNode*)(node);
 		if (proxy) {
 			ShaderInput *input = proxy->inputs[0];
 			ShaderOutput *output = proxy->outputs[0];

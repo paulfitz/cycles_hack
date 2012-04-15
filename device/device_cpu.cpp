@@ -134,10 +134,10 @@ public:
 	void thread_run(int t)
 	{
 		DeviceTask task;
-		//printf("Waiting for task\n");
+		printf("Waiting for task\n");
 
 		while(tasks.worker_wait_pop(task)) {
-		  //printf("GOT A TASK!\n");
+		  printf("GOT A TASK!\n");
 			if(task.type == DeviceTask::PATH_TRACE)
 				thread_path_trace(task);
 			else if(task.type == DeviceTask::TONEMAP)
@@ -147,7 +147,7 @@ public:
 
 			tasks.worker_done();
 		}
-		//printf("Finished\n");
+		printf("Finished\n");
 	}
 
 	void thread_path_trace(DeviceTask& task)
@@ -246,7 +246,7 @@ public:
 	{
 		/* split task into smaller ones, more than number of threads for uneven
 		   workloads where some parts of the image render slower than others */
-	  //printf("ADD task\n");
+	  printf("ADD task\n");
 		task.split(tasks, 10);
 	}
 

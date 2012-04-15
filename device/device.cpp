@@ -31,6 +31,10 @@
 #include "util_types.h"
 #include "util_vector.h"
 
+#ifdef USE_SDL
+#include <SDL/SDL.h>
+#endif
+
 CCL_NAMESPACE_BEGIN
 
 /* Device Task */
@@ -128,6 +132,26 @@ void Device::draw_pixels(device_memory& rgba, int y, int w, int h, int dy, int w
 	pixels += 4*y*w;
 
 	printf("I think we have an image of size %d %d\n", w, h);
+#ifdef USE_SDL
+	SDL_Surface *screen = SDL_SetVideoMode(w,h, 32, SDL_SWSURFACE);
+	if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen);
+	for (int i = 0; i < h; i++) {
+	  char *target = (char*)screen->pixels + i*w*4;
+	  char *src = (char *)pixels + ((h-i-1)*w*4);
+	  for (int j = 0; j < w; j++) {
+	    target[0] = src[2];
+	    target[1] = src[1];
+	    target[2] = src[0];
+	    target[3] = src[3];
+	    target += 4;
+	    src += 4;
+	  }
+	}
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+	SDL_Flip(screen); 
+#else
+
+#ifndef NO_FILE_OUTPUT
 	static int ct = 0;
 	char buf[1000];
 	sprintf(buf,"test_%06d.ppm",ct);
@@ -149,6 +173,8 @@ void Device::draw_pixels(device_memory& rgba, int y, int w, int h, int dy, int w
 	  fclose(fp);
         }
 	printf("wrote to %s (hacked in %s)\n", buf, __FILE__);
+#endif
+#endif
 #ifndef NO_VIEWER
 	if(transparent) {
 		glEnable(GL_BLEND);

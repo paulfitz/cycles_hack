@@ -24,6 +24,11 @@
 #include "util_time.h"
 #include "util_view.h"
 
+#ifdef USE_SDL
+#include <SDL/SDL.h>
+#endif
+
+
 #ifndef NO_VIEWER
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -215,8 +220,23 @@ void view_main_loop(const char *title, int width, int height,
 
 	glutMainLoop();
 #else
-	while (true) {
+	int keypress = 0;
+	while (!keypress) {
 	  view_display();
+#ifdef USE_SDL
+	  SDL_Event event;
+	  while(SDL_PollEvent(&event)) {
+	    switch (event.type) 
+              {
+	      case SDL_QUIT:
+		keypress = 1;
+		break;
+	      case SDL_KEYDOWN:
+		keypress = 1;
+		break;
+              }
+	  }
+#endif
 	}
 #endif
 }

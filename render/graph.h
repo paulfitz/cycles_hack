@@ -167,6 +167,7 @@ public:
 	ustring name; /* name, not required to be unique */
 	int id; /* index in graph node array */
 	ShaderBump bump; /* for bump mapping utility */
+	bool proxy;
 };
 
 

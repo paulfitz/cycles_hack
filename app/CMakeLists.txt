@@ -74,8 +74,26 @@ if(WITH_CYCLES_NETWORK)
 	unset(SRC)
 endif()
 
-configure_file(gumbo.xml ${CMAKE_BINARY_DIR}/gumbo.xml COPYONLY)
-configure_file(elephant.xml ${CMAKE_BINARY_DIR}/elephant.xml COPYONLY)
+foreach(f gumbo.xml elephant.xml)
+  configure_file(${f} ${CMAKE_BINARY_DIR}/${f} COPYONLY)
+endforeach ()
 
 message(STATUS "Only supported command: ./app/cycles_test")
 message(STATUS "Requires elephant.xml and gumbo.xml in current directory")
+
+
+if (HACK_EMSCRIPTEN)
+
+  # for emscripten
+  add_executable(trivial_test trivial_test.cpp)
+  set_property(
+    TARGET trivial_test
+    PROPERTY SUFFIX
+    .bc)
+
+  set_property(
+    TARGET cycles_test
+    PROPERTY SUFFIX
+    .bc)
+
+endif()

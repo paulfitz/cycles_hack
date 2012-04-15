@@ -1017,6 +1017,7 @@ void ConvertNode::compile(OSLCompiler& compiler)
 ProxyNode::ProxyNode(ShaderSocketType from_, ShaderSocketType to_)
 : ShaderNode("proxy")
 {
+  proxy = true;
 	from = from_;
 	to = to_;
 

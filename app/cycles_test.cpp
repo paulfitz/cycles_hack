@@ -37,6 +37,13 @@
 
 #define function_bind(x) (x)
 
+
+#ifdef USE_SDL
+#include <SDL/SDL.h>
+#endif
+
+
+
 CCL_NAMESPACE_BEGIN
 
 const TypeDesc TypeDesc::TypeColor("color");
@@ -115,7 +122,7 @@ static void session_init()
 	options.session->start();
 	printf("session 'start' finished\n");
 
-	//options.scene = NULL;
+	options.scene = NULL;
 }
 
 static void session_more() {
@@ -244,6 +251,8 @@ static void options_parse(int argc, const char **argv)
 	//ArgParse ap;
 	bool help = false;
 
+	options.session_params.samples = 16;
+
 	/*
 	ap.options ("Usage: cycles_test [options] file.xml",
 		"%*", files_parse, "",
@@ -338,6 +347,11 @@ using namespace ccl;
 
 int main(int argc, const char **argv)
 {
+#ifdef USE_SDL
+  SDL_Init(SDL_INIT_VIDEO);
+#endif
+
+
 	path_init("../build/bin/2.59/scripts/addons/cycles/");
 
 	options_parse(argc, argv);
@@ -355,6 +369,10 @@ int main(int argc, const char **argv)
 			       session_init, 
 			       session_more, session_exit, resize, display, keyboard);
 	}
+
+#ifdef USE_SDL
+  SDL_Quit();
+#endif
 
 	return 0;
 }

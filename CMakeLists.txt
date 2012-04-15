@@ -1,24 +1,38 @@
 cmake_minimum_required(VERSION 2.8)
 
 
-set(HACK_RETAIN_VIEWER FALSE)
+option(HACK_RETAIN_VIEWER "include opengl-based viewer" FALSE)
 if (HACK_RETAIN_VIEWER) 
   message(STATUS "sparing opengl")
 else()
   add_definitions(-DNO_VIEWER=1)
 endif()
 
+option(HACK_EMSCRIPTEN "be emscripten-friendly" FALSE)
+
 # we replace BOOST_FOREACH with native for
 add_definitions(-std=c++0x)
 # add_definitions(-std=c++11)
+
+add_definitions(-fno-exceptions)
+add_definitions(-fno-rtti)
 
 option(CREATE_SHARED_LIBRARIES "Compile shared libraries rather than static" FALSE)
 if (CREATE_SHARED_LIBRARIES)
   set(BUILD_SHARED_LIBS ON)
 endif ()
 
+option(USE_SDL "use sdl (emscripten-friendly)" FALSE)
 
+if (USE_SDL)
+  add_definitions(-DUSE_SDL)
+  link_libraries(SDL)
+endif ()
 
+if (HACK_EMSCRIPTEN)
+  add_definitions(-DNO_FILE_OUTPUT)
+  add_definitions(-m32)
+endif ()
 
 
 

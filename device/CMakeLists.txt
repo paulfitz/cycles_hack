@@ -14,9 +14,9 @@ set(SRC
 	device.cpp
 	device_cpu.cpp
 #	device_cuda.cpp
-	device_multi.cpp
-	device_network.cpp
-	device_opencl.cpp
+#	device_multi.cpp
+#	device_network.cpp
+#	device_opencl.cpp
 )
 
 set(SRC_HEADERS
