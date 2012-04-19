@@ -108,8 +108,19 @@ void RenderBuffers::reset(Device *device, BufferParams& params_)
 	
 	/* allocate buffer */
 	buffer.resize(params.width*params.height*params.get_passes_size());
+	printf("Allocating %dx%d:%d\n", params.width, params.height,
+	       params.get_passes_size());
 	device->mem_alloc(buffer, MEM_READ_WRITE);
 	device->mem_zero(buffer);
+	printf("Allocating: Final size %d (vs %d)\n", (int)buffer.size(),
+	       (int)(params.width*params.height*params.get_passes_size()));
+	printf("Allocating: Data size %d (vs %d)\n", (int)buffer.memory_size(),
+	       (int)(params.width*params.height*params.get_passes_size()*sizeof(float)));
+	printf("Allocating: test %ld\n", (long int)((void *)buffer.data_pointer));
+	for (int i=0; i<params.width*params.height*params.get_passes_size(); i++) {
+	    ((float*)buffer.data_pointer)[i] = 0;
+	}
+	printf("Allocating: done, no complaint\n");
 
 	/* allocate rng state */
 	rng_state.resize(params.width, params.height);

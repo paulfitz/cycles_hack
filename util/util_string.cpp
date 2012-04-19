@@ -65,6 +65,20 @@ string string_printf(const char *format, ...)
 	}
 }
 
+string string_d(int x) {
+  char buf[256];
+  sprintf(buf,"%d",x);
+  return buf;
+}
+
+string string_0d(int x, int n) {
+  string result = string_d(x);
+  while (result.length()<n) {
+    result = string("0") + result;
+  }
+  return result;
+}
+
 bool string_iequals(const string& a, const string& b)
 {
 	if(a.size() == b.size()) {

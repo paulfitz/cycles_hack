@@ -64,6 +64,8 @@ struct Options {
 
 static void session_print(const string& str)
 {
+  printf("[] %s\n", str.c_str());
+  return;
 	/* print with carriage return to overwrite previous */
 	printf("\r%s", str.c_str());
 
@@ -93,7 +95,8 @@ static void session_print_status()
 		status += ": " + substatus;
 
 	/* print status */
-	status = string_printf("Sample %d   %s", sample, status.c_str());
+	//status = string_printf("Sample %d   %s", sample, status.c_str());
+	status = "Sample";
 	session_print(status);
 }
 
@@ -104,6 +107,8 @@ static BufferParams& session_buffer_params()
 	buffer_params.height = options.height;
 	buffer_params.full_width = options.width;
 	buffer_params.full_height = options.height;
+	printf("Width %d height %d\n", buffer_params.full_width,
+	       buffer_params.full_height);
 
 	return buffer_params;
 }
@@ -120,19 +125,19 @@ static void session_init()
 		options.session->progress.set_update_callback(function_bind(&view_redraw));
 
 	options.session->start();
-	printf("session 'start' finished\n");
+	printf("session_init.\n");
 
 	options.scene = NULL;
 }
 
 static void session_more() {
-  printf("MORE!!!\n");
+  printf("session_more.\n");
   options.session->wait();
 }
  
 static void scene_init(int width, int height)
 {
-  printf("scene_init\n");
+  printf("scene_init.\n");
 	options.scene = new Scene(options.scene_params);
 	xml_read_file(options.scene, options.filepath.c_str());
 	
@@ -161,6 +166,8 @@ static void session_exit()
 
 static void display_info(Progress& progress)
 {
+  printf("display_info - skipping, it just is not happy in js\n");
+  /*
 	static double latency = 0.0;
 	static double last = 0;
 	double elapsed = time_dt();
@@ -174,15 +181,21 @@ static void display_info(Progress& progress)
 	string status, substatus;
 
 	progress.get_sample(sample, total_time, sample_time);
-	progress.get_status(status, substatus);
+	//progress.get_status(status, substatus);
 
-	if(substatus != "")
-		status += ": " + substatus;
+	//if(substatus != "")
+	//status += string(": ") + substatus;
 
-	str = string_printf("latency: %.4f        sample: %d        total: %.4f        average: %.4f        %s",
-		latency, sample, total_time, sample_time, status.c_str());
+	//printf("*** Status %s\n", status.c_str());
 
-	view_display_info(str.c_str());
+	// Something murky happens with the following printf in javascript.
+	// Too bad.
+
+	printf("*** latency: %d    sample: %d     total: %d    average: %d\n",
+	       (int)(latency*1000), sample, (int)(1000*total_time), (int)(1000*sample_time));
+
+//	view_display_info(str.c_str());
+*/
 }
 
 static void display()

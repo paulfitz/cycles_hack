@@ -122,15 +122,13 @@ public:
 		lock.unlock();
 
 		queue_cond.notify_one();
+		printf("pushed to queue %d\n", (int)(queue.size()));
 	}
 
 	/* wait until all tasks are done */
 	void wait_done()
 	{
-		thread_scoped_lock lock(done_mutex);
-
-		while(tot_done != tot)
-			done_cond.wait(lock);
+	  printf("NEVER call wait_done, please!\n");
 	}
 
 	/* stop all worker threads */
@@ -139,6 +137,7 @@ public:
 		clear();
 		do_stop = true;
 		queue_cond.notify_all();
+		printf("cleared queue %d\n", (int)(queue.size()));
 	}
 
 	/* cancel all tasks, but keep worker threads running */
@@ -166,16 +165,21 @@ public:
 
 	bool worker_wait_pop(T& value)
 	{
+	  printf("worker_wait_pop...\n");
 		thread_scoped_lock lock(queue_mutex);
 
 		//while(queue.empty() && !do_stop)
 		//queue_cond.wait(lock);
 
+		printf("items remaining beg %d\n", (int)(queue.size()));
 		if(queue.empty())
 			return false;
 		
+		printf("items remaining pre %d\n", (int)(queue.size()));
 		value = queue.front();
+		printf("items remaining pst %d\n", (int)(queue.size()));
 		queue.pop();
+		printf("items remaining end %d\n", (int)(queue.size()));
 
 		return true;
 	}
@@ -185,6 +189,8 @@ public:
 		thread_scoped_lock lock(done_mutex);
 		tot_done++;
 		lock.unlock();
+
+		printf("worker_done %d vs %d\n", tot_done, tot);
 
 		assert(tot_done <= tot);
 
@@ -217,9 +223,9 @@ protected:
 	thread_mutex done_mutex;
 	thread_condition_variable queue_cond;
 	thread_condition_variable done_cond;
-	volatile bool do_stop;
-	volatile bool do_cancel;
-	volatile int tot, tot_done;
+	bool do_stop;
+	bool do_cancel;
+	int tot, tot_done;
 };
 
 /* Thread Local Storage

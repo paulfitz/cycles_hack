@@ -38,7 +38,10 @@ using std::istringstream;
 #define PRINTF_ATTRIBUTE
 #endif
 
-string string_printf(const char *format, ...) PRINTF_ATTRIBUTE;
+string __string_printf(const char *format, ...) PRINTF_ATTRIBUTE;
+
+string string_d(int x);
+string string_0d(int x,int n);
 
 bool string_iequals(const string& a, const string& b);
 void string_split(vector<string>& tokens, const string& str, const string& separators = "\t ");

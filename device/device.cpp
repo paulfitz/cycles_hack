@@ -174,6 +174,24 @@ void Device::draw_pixels(device_memory& rgba, int y, int w, int h, int dy, int w
         }
 	printf("wrote to %s (hacked in %s)\n", buf, __FILE__);
 #endif
+
+	if (w<200) {
+	  for (int yy = 0; yy < h; yy++) {
+	    printf("993 ");
+	    char *src = (char*)rgba.device_pointer + ((h-yy-1)*w*4);
+	    for (int xx = 0; xx < w; xx++) {
+	      printf("%d ", (unsigned char)src[0]);
+	      printf("%d ", (unsigned char)src[1]);
+	      printf("%d ", (unsigned char)src[2]);
+	      src += 4;
+	    }
+	    printf("\n");
+	  }
+	}
+	printf("999 \n");
+	exit(0);
+
+
 #endif
 #ifndef NO_VIEWER
 	if(transparent) {

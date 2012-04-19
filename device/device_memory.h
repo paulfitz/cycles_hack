@@ -178,6 +178,7 @@ protected:
 
 /* Device Vector */
 
+
 template<typename T> class device_vector : public device_memory
 {
 public:
@@ -197,7 +198,6 @@ public:
 
 	virtual ~device_vector() {}
 
-	/* vector functions */
 	T *resize(size_t width, size_t height = 0)
 	{
 		data_size = (height == 0)? width: width*height;

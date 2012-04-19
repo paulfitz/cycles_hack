@@ -151,7 +151,7 @@ __device_inline bool shadow_blocked(KernelGlobals *kg, PathState *state, Ray *ra
 		return false;
 	
 	Intersection isect;
-	bool result = scene_intersect(kg, ray, PATH_RAY_SHADOW_OPAQUE, &isect);
+	bool result = scene_intersect(kg, ray, PATH_RAY_SHADOW_OPAQUE, &isect,0);
 
 	*shadow = make_float3(1.0f, 1.0f, 1.0f);
 
@@ -187,7 +187,7 @@ __device_inline bool shadow_blocked(KernelGlobals *kg, PathState *state, Ray *ra
 #endif
 				}
 
-				if(!scene_intersect(kg, ray, PATH_RAY_SHADOW_TRANSPARENT, &isect)) {
+				if(!scene_intersect(kg, ray, PATH_RAY_SHADOW_TRANSPARENT, &isect,0)) {
 					*shadow *= throughput;
 					return false;
 				}
@@ -214,30 +214,40 @@ __device_inline bool shadow_blocked(KernelGlobals *kg, PathState *state, Ray *ra
 	return result;
 }
 
-__device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, Ray ray, __global float *buffer)
+__device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, Ray ray, __global float *buffer, int dbg)
 {
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
+
 	/* initialize */
 	PathRadiance L;
 	float3 throughput = make_float3(1.0f, 1.0f, 1.0f);
 	float L_transparent = 0.0f;
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 	path_radiance_init(&L, kernel_data.film.use_light_pass);
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 	float ray_pdf = 0.0f;
 	PathState state;
 	int rng_offset = PRNG_BASE_NUM;
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 	path_state_init(&state);
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 	/* path iteration */
 	for(;; rng_offset += PRNG_BOUNCE_NUM) {
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		/* intersect scene */
 		Intersection isect;
 		uint visibility = path_state_ray_visibility(kg, &state);
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
-		if(!scene_intersect(kg, &ray, visibility, &isect)) {
+  if(!scene_intersect(kg, &ray, visibility, &isect,dbg)) {
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 			/* eval background shader if nothing hit */
 			if(kernel_data.background.transparent && (state.flag & PATH_RAY_CAMERA)) {
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 				L_transparent += average(throughput);
 			}
 #ifdef __BACKGROUND__
@@ -247,17 +257,21 @@ __device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, R
 				path_radiance_accum_background(&L, throughput, L_background, state.bounce);
 			}
 #endif
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 			break;
 		}
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		/* setup shading */
 		ShaderData sd;
 		shader_setup_from_ray(kg, &sd, &isect, &ray);
 		float rbsdf = path_rng(kg, rng, sample, rng_offset + PRNG_BSDF);
 		shader_eval_surface(kg, &sd, rbsdf, state.flag);
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		kernel_write_data_passes(kg, buffer, &L, &sd, sample, state.flag, throughput);
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 #ifdef __HOLDOUT__
 		if((sd.flag & SD_HOLDOUT) && (state.flag & PATH_RAY_CAMERA)) {
@@ -283,9 +297,11 @@ __device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, R
 		float probability = path_state_terminate_probability(kg, &state, throughput);
 		float terminate = path_rng(kg, rng, sample, rng_offset + PRNG_TERMINATE);
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		if(terminate >= probability)
 			break;
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		throughput /= probability;
 
 #ifdef __AO__
@@ -353,10 +369,12 @@ __device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, R
 		}
 #endif
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		/* no BSDF? we can stop here */
 		if(!(sd.flag & SD_BSDF))
 			break;
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		/* sample BSDF */
 		float bsdf_pdf;
 		BsdfEval bsdf_eval;
@@ -371,6 +389,7 @@ __device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, R
 
 		shader_release(kg, &sd);
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 		if(bsdf_pdf == 0.0f || bsdf_eval_is_zero(&bsdf_eval))
 			break;
 
@@ -383,6 +402,7 @@ __device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, R
 
 		/* update path state */
 		path_state_next(kg, &state, label);
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 		/* setup ray */
 		ray.P = ray_offset(sd.P, (label & LABEL_TRANSMIT)? -sd.Ng: sd.Ng);
@@ -400,7 +420,9 @@ __device float4 kernel_path_integrate(KernelGlobals *kg, RNG *rng, int sample, R
 	path_radiance_clamp(&L, &L_sum, kernel_data.integrator.sample_clamp);
 #endif
 
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 	kernel_write_light_passes(kg, buffer, &L, sample);
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 	return make_float4(L_sum.x, L_sum.y, L_sum.z, 1.0f - L_transparent);
 }
@@ -409,6 +431,7 @@ __device void kernel_path_trace(KernelGlobals *kg,
 	__global float *buffer, __global uint *rng_state,
 	int sample, int x, int y, int offset, int stride)
 {
+  //printf("Trace %d %d,%d %d %d\n", sample, x, y, offset, stride);
 	/* buffer offset */
 	int index = offset + x + y*stride;
 	int pass_stride = kernel_data.film.pass_stride;
@@ -430,10 +453,14 @@ __device void kernel_path_trace(KernelGlobals *kg,
 	float lens_u = path_rng(kg, &rng, sample, PRNG_LENS_U);
 	float lens_v = path_rng(kg, &rng, sample, PRNG_LENS_V);
 
+	//printf("%s %d\n", __FILE__, __LINE__);
 	camera_sample(kg, x, y, filter_u, filter_v, lens_u, lens_v, &ray);
+	printf("%s %d\n", __FILE__, __LINE__);
 
 	/* integrate */
-	float4 L = kernel_path_integrate(kg, &rng, sample, ray, buffer);
+	float4 L = kernel_path_integrate(kg, &rng, sample, ray, buffer,
+					 (x==40&&y==42));
+	printf("%s %d\n", __FILE__, __LINE__);
 
 	/* accumulate result in output buffer */
 	kernel_write_pass_float4(buffer, sample, L);

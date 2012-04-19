@@ -112,58 +112,71 @@ void Scene::device_update(Device *device_, Progress& progress)
 	 * - Light manager needs final mesh data to compute emission CDF.
 	 */
 
+printf("scan %s %d\n", __FILE__, __LINE__);
 	progress.set_status("Updating Background");
 	background->device_update(device, &dscene, this);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Shaders");
+printf("scan %s %d\n", __FILE__, __LINE__);
 	shader_manager->device_update(device, &dscene, this, progress);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Images");
 	image_manager->device_update(device, &dscene, progress);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Camera");
 	camera->device_update(device, &dscene);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Objects");
 	object_manager->device_update(device, &dscene, this, progress);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Meshes");
 	mesh_manager->device_update(device, &dscene, this, progress);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Lights");
 	light_manager->device_update(device, &dscene, this, progress);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Filter");
 	filter->device_update(device, &dscene);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Film");
 	film->device_update(device, &dscene);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Integrator");
 	integrator->device_update(device, &dscene);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	if(progress.get_cancel()) return;
 
 	progress.set_status("Updating Device", "Writing constant memory");
 	device->const_copy_to("__data", &dscene.data, sizeof(dscene.data));
+printf("scan %s %d\n", __FILE__, __LINE__);
 }
 
 bool Scene::need_update()

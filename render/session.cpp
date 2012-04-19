@@ -305,7 +305,7 @@ bool Session::draw_cpu(BufferParams& buffer_params)
 
 void Session::run_cpu(bool reset)
 {
-  printf("RUNNING CPU\n");
+  printf("run_cpu.\n");
   if (reset)
 	{
 		/* reset once to start */
@@ -319,10 +319,12 @@ void Session::run_cpu(bool reset)
 
 	/*while(!progress.get_cancel())*/
 	for (int i=0; i<1; i++) {
-	  printf("Moving...\n");
+	  printf("run_cpu: scanning...\n");
 		/* advance to next tile */
 		bool no_tiles = !tile_manager.next();
+		printf("scan %s %d\n", __FILE__, __LINE__);
 		bool need_tonemap = false;
+		printf("scan %s %d\n", __FILE__, __LINE__);
 
 		if(params.background) {
 			/* if no work left and in background mode, we can stop immediately */
@@ -364,10 +366,13 @@ void Session::run_cpu(bool reset)
 			/* buffers mutex is locked entirely while rendering each
 			   sample, and released/reacquired on each iteration to allow
 			   reset and draw in between */
+		printf("scan %s %d\n", __FILE__, __LINE__);
 			thread_scoped_lock buffers_lock(buffers->mutex);
 
 			/* update scene */
+		printf("scan %s %d\n", __FILE__, __LINE__);
 			update_scene();
+		printf("scan %s %d\n", __FILE__, __LINE__);
 
 			if(device->error_message() != "")
 				progress.set_cancel(device->error_message());
@@ -376,11 +381,14 @@ void Session::run_cpu(bool reset)
 				break;
 
 			/* update status and timing */
+		printf("scan %s %d\n", __FILE__, __LINE__);
 			update_status_time();
 
 			/* path trace */
-			foreach(Tile& tile, tile_manager.state.tiles)
+			foreach(Tile& tile, tile_manager.state.tiles) {
+			  printf("path_trace(tile)\n");
 				path_trace(tile);
+			}
 
 			/* update status and timing */
 			update_status_time();
@@ -415,12 +423,14 @@ void Session::run_cpu(bool reset)
 		}
 
 		progress.set_update();
+	  printf("run_cpu: done scanning.\n");
 	}
 }
 
 void Session::run()
 {
 	/* load kernels */
+  printf("Session::run, loading kernels\n");
 	if(!kernels_loaded) {
 		progress.set_status("Loading render kernels (may take a few minutes the first time)");
 
@@ -436,6 +446,7 @@ void Session::run()
 
 		kernels_loaded = true;
 	}
+  printf("Session::run, loaded kernels\n");
 
 	/* session thread loop */
 	progress.set_status("Waiting for render to start");
@@ -564,12 +575,12 @@ void Session::update_status_time(bool show_pause, bool show_done)
 	/* update status */
 	string status, substatus;
 
-	if(!params.progressive)
-		substatus = "Path Tracing";
-	else if(params.samples == INT_MAX)
-		substatus = string_printf("Path Tracing Sample %d", sample+1);
-	else
-		substatus = string_printf("Path Tracing Sample %d/%d", sample+1, params.samples);
+	//if(!params.progressive)
+	substatus = "Path Tracing";
+	//else if(params.samples == INT_MAX)
+	//	substatus = string_printf("Path Tracing Sample %d", sample+1);
+	//else
+	//	substatus = string_printf("Path Tracing Sample %d/%d", sample+1, params.samples);
 	
 	if(show_pause)
 		status = "Paused";

@@ -32,6 +32,7 @@ endif ()
 if (HACK_EMSCRIPTEN)
   add_definitions(-DNO_FILE_OUTPUT)
   add_definitions(-m32)
+  add_definitions(-malign-double)
 endif ()
 
 

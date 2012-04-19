@@ -150,8 +150,9 @@ void BVHBuild::progress_update(float progress_start, float progress_end)
 		return;
 
 	float duplicates = (float)progress_num_duplicates/(float)references.size();
-	string msg = string_printf("Building BVH %.0f%%, duplicates %.0f%%",
-		progress_start*100.0f, duplicates*100.0f);
+	string msg = "Building BVH stuff";
+	//string msg = string_printf("Building BVH %.0f%%, duplicates %.0f%%",
+	//progress_start*100.0f, duplicates*100.0f);
 
 	progress.set_substatus(msg);
 	progress_start_time = time_dt();

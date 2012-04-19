@@ -46,48 +46,63 @@ void SVMShaderManager::device_update(Device *device, DeviceScene *dscene, Scene 
 		return;
 
 	/* test if we need to update */
+printf("scan %s %d\n", __FILE__, __LINE__);
 	device_free(device, dscene);
 
 	/* svm_nodes */
 	vector<int4> svm_nodes;
 	size_t i;
 
+printf("scan %s %d\n", __FILE__, __LINE__);
 	for(i = 0; i < scene->shaders.size(); i++) {
 		svm_nodes.push_back(make_int4(NODE_SHADER_JUMP, 0, 0, 0));
 		svm_nodes.push_back(make_int4(NODE_SHADER_JUMP, 0, 0, 0));
 	}
+printf("scan %s %d\n", __FILE__, __LINE__);
 	
 	bool sunsky_done = false;
 	bool use_multi_closure = device->info.advanced_shading;
 
+printf("scan %s %d\n", __FILE__, __LINE__);
 	for(i = 0; i < scene->shaders.size(); i++) {
+	  printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 		Shader *shader = scene->shaders[i];
 
 		if(progress.get_cancel()) return;
 
 		assert(shader->graph);
+		printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 
 		if(shader->sample_as_light && shader->has_surface_emission)
 			scene->light_manager->need_update = true;
+	  printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 
 		SVMCompiler compiler(scene->shader_manager, scene->image_manager,
 			use_multi_closure);
+	  printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 		compiler.sunsky = (sunsky_done)? NULL: &dscene->data.sunsky;
+	  printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 		compiler.background = ((int)i == scene->default_background);
+	  printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 		compiler.compile(shader, svm_nodes, i);
+	  printf("scan %s %d // %d\n", __FILE__, __LINE__, (int)i);
 		if(!compiler.sunsky)
 			sunsky_done = true;
 	}
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	dscene->svm_nodes.copy((uint4*)&svm_nodes[0], svm_nodes.size());
 	device->tex_alloc("__svm_nodes", dscene->svm_nodes);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	for(i = 0; i < scene->shaders.size(); i++) {
 		Shader *shader = scene->shaders[i];
 		shader->need_update = false;
 	}
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	device_update_common(device, dscene, scene, progress);
+printf("scan %s %d\n", __FILE__, __LINE__);
 
 	need_update = false;
 }
@@ -577,12 +592,14 @@ void SVMCompiler::compile_type(Shader *shader, ShaderGraph *graph, ShaderType ty
 	 * closure.
 	 */
 
+printf("compiler %s %d\n", __FILE__, __LINE__);
 	current_type = type;
 	current_graph = graph;
 
 	/* get input in output node */
 	ShaderNode *node = graph->output();
 	ShaderInput *clin = NULL;
+printf("compiler %s %d\n", __FILE__, __LINE__);
 	
 	if(type == SHADER_TYPE_SURFACE)
 		clin = node->input("Surface");
@@ -594,14 +611,19 @@ void SVMCompiler::compile_type(Shader *shader, ShaderGraph *graph, ShaderType ty
 		assert(0);
 
 	/* clear all compiler state */
+printf("compiler %s %d\n", __FILE__, __LINE__);
 	memset(&active_stack, 0, sizeof(active_stack));
+printf("compiler %s %d\n", __FILE__, __LINE__);
 	svm_nodes.clear();
+printf("compiler %s %d\n", __FILE__, __LINE__);
 
 	foreach(ShaderNode *node, graph->nodes) {
+printf("compiler %s %d\n", __FILE__, __LINE__);
 		foreach(ShaderInput *input, node->inputs)
 			input->stack_offset = SVM_STACK_INVALID;
 		foreach(ShaderOutput *output, node->outputs)
 			output->stack_offset = SVM_STACK_INVALID;
+printf("compiler %s %d\n", __FILE__, __LINE__);
 	}
 
 	if(clin->link) {
@@ -622,35 +644,47 @@ void SVMCompiler::compile_type(Shader *shader, ShaderGraph *graph, ShaderType ty
 			shader->has_displacement = true;
 		}
 
+printf("compiler %s %d\n", __FILE__, __LINE__);
 		if(generate) {
 			set<ShaderNode*> done;
 
+printf("compiler %s %d\n", __FILE__, __LINE__);
 			if(use_multi_closure)
 				generate_multi_closure(clin->link->parent, done, SVM_STACK_INVALID);
 			else
 				generate_closure(clin->link->parent, done);
+printf("compiler %s %d\n", __FILE__, __LINE__);
 		}
 	}
 
 	/* compile output node */
+printf("compiler %s %d\n", __FILE__, __LINE__);
 	node->compile(*this);
+printf("compiler %s %d\n", __FILE__, __LINE__);
 
 	add_node(NODE_END, 0, 0, 0);
+printf("compiler %s %d\n", __FILE__, __LINE__);
 }
 
 void SVMCompiler::compile(Shader *shader, vector<int4>& global_svm_nodes, int index)
 {
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
 	/* copy graph for shader with bump mapping */
 	ShaderNode *node = shader->graph->output();
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
 
 	if(node->input("Surface")->link && node->input("Displacement")->link)
 		if(!shader->graph_bump)
 			shader->graph_bump = shader->graph->copy();
 
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
+
 	/* finalize */
 	shader->graph->finalize(false, false);
 	if(shader->graph_bump)
 		shader->graph_bump->finalize(true, false);
+
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
 
 	current_shader = shader;
 
@@ -666,11 +700,16 @@ void SVMCompiler::compile(Shader *shader, vector<int4>& global_svm_nodes, int in
 	global_svm_nodes[index*2 + 1].y = global_svm_nodes.size();
 	global_svm_nodes.insert(global_svm_nodes.end(), svm_nodes.begin(), svm_nodes.end());
 
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
+
+
 	if(shader->graph_bump) {
 		compile_type(shader, shader->graph_bump, SHADER_TYPE_SURFACE);
 		global_svm_nodes[index*2 + 1].y = global_svm_nodes.size();
 		global_svm_nodes.insert(global_svm_nodes.end(), svm_nodes.begin(), svm_nodes.end());
 	}
+
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
 
 	/* generate volume shader */
 	compile_type(shader, shader->graph, SHADER_TYPE_VOLUME);
@@ -678,11 +717,16 @@ void SVMCompiler::compile(Shader *shader, vector<int4>& global_svm_nodes, int in
 	global_svm_nodes[index*2 + 1].z = global_svm_nodes.size();
 	global_svm_nodes.insert(global_svm_nodes.end(), svm_nodes.begin(), svm_nodes.end());
 
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
+
 	/* generate displacement shader */
 	compile_type(shader, shader->graph, SHADER_TYPE_DISPLACEMENT);
 	global_svm_nodes[index*2 + 0].w = global_svm_nodes.size();
 	global_svm_nodes[index*2 + 1].w = global_svm_nodes.size();
 	global_svm_nodes.insert(global_svm_nodes.end(), svm_nodes.begin(), svm_nodes.end());
+
+printf("compiler::compile %s %d\n", __FILE__, __LINE__);
+
 }
 
 CCL_NAMESPACE_END

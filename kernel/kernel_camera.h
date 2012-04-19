@@ -22,6 +22,7 @@ CCL_NAMESPACE_BEGIN
 
 __device float2 camera_sample_aperture(KernelGlobals *kg, float u, float v)
 {
+  printf("camera_sample_aperture %s %d\n", __FILE__, __LINE__);
 	float blades = kernel_data.cam.blades;
 
 	if(blades == 0.0f) {
@@ -37,6 +38,8 @@ __device float2 camera_sample_aperture(KernelGlobals *kg, float u, float v)
 
 __device void camera_sample_perspective(KernelGlobals *kg, float raster_x, float raster_y, float lens_u, float lens_v, Ray *ray)
 {
+  printf("camera_sample_perspective %s %d (%d %d)\n", __FILE__, __LINE__, (int)raster_x, (int)raster_y);
+
 	/* create ray form raster position */
 	Transform rastertocamera = kernel_data.cam.rastertocamera;
 	float3 Pcamera = transform(&rastertocamera, make_float3(raster_x, raster_y, 0.0f));
@@ -91,6 +94,8 @@ __device void camera_sample_perspective(KernelGlobals *kg, float raster_x, float
 
 __device void camera_sample_orthographic(KernelGlobals *kg, float raster_x, float raster_y, Ray *ray)
 {
+  printf("camera_sample_orthographic %s %d\n", __FILE__, __LINE__);
+
 	/* create ray form raster position */
 	Transform rastertocamera = kernel_data.cam.rastertocamera;
 	float3 Pcamera = transform(&rastertocamera, make_float3(raster_x, raster_y, 0.0f));
@@ -126,6 +131,7 @@ __device void camera_sample_orthographic(KernelGlobals *kg, float raster_x, floa
 
 __device void camera_sample_environment(KernelGlobals *kg, float raster_x, float raster_y, Ray *ray)
 {
+  printf("camera_sample_environment %s %d\n", __FILE__, __LINE__);
 	Transform rastertocamera = kernel_data.cam.rastertocamera;
 	float3 Pcamera = transform(&rastertocamera, make_float3(raster_x, raster_y, 0.0f));
 

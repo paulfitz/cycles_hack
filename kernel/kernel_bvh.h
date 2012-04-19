@@ -36,16 +36,17 @@ CCL_NAMESPACE_BEGIN
 /* silly workaround for float extended precision that happens when compiling
    without sse support on x86, it results in different results for float ops
    that you would otherwise expect to compare correctly */
-#if !defined(__i386__) || defined(__SSE__)
+//#if !defined(__i386__) || defined(__SSE__)
 #define NO_EXTENDED_PRECISION
-#else
-#define NO_EXTENDED_PRECISION volatile
-#endif
+//#else
+//#define NO_EXTENDED_PRECISION volatile
+//#endif
 
 __device_inline float3 bvh_inverse_direction(float3 dir)
 {
 	/* avoid divide by zero (ooeps = exp2f(-80.0f)) */
-	float ooeps = 0.00000000000000000000000082718061255302767487140869206996285356581211090087890625f;
+  //float ooeps = 0.00000000000000000000000082718061255302767487140869206996285356581211090087890625f;
+	float ooeps = 0.00000082718061255302767487140869206996285356581211090087890625f;
 	float3 idir;
 
 	idir.x = 1.0f/((fabsf(dir.x) > ooeps)? dir.x: copysignf(ooeps, dir.x));
@@ -176,8 +177,9 @@ __device_inline void bvh_triangle_intersect(KernelGlobals *kg, Intersection *ise
 	}
 }
 
-__device_inline bool scene_intersect(KernelGlobals *kg, const Ray *ray, const uint visibility, Intersection *isect)
+__device_inline bool scene_intersect(KernelGlobals *kg, const Ray *ray, const uint visibility, Intersection *isect, int dbg)
 {
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 	/* traversal stack in CUDA thread-local memory */
 	int traversalStack[BVH_STACK_SIZE];
 	traversalStack[0] = ENTRYPOINT_SENTINEL;
@@ -197,6 +199,7 @@ __device_inline bool scene_intersect(KernelGlobals *kg, const Ray *ray, const ui
 	isect->prim = ~0;
 	isect->u = 0.0f;
 	isect->v = 0.0f;
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 
 	/* traversal loop */
 	do {
@@ -205,6 +208,7 @@ __device_inline bool scene_intersect(KernelGlobals *kg, const Ray *ray, const ui
 			/* traverse internal nodes */
 			while(nodeAddr >= 0 && nodeAddr != ENTRYPOINT_SENTINEL)
 			{
+  if (dbg) printf("kpi//%s %d\n", __FILE__, __LINE__);
 				bool traverseChild0, traverseChild1, closestChild1;
 				int nodeAddrChild1;
 

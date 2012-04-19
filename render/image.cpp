@@ -378,10 +378,8 @@ void ImageManager::device_load_image(Device *device, DeviceScene *dscene, int sl
 			pixels[3] = 0.0f;
 		}
 
-		string name;
-
-		if(slot >= 10) name = string_printf("__tex_image_float_0%d", slot);
-		else name = string_printf("__tex_image_float_00%d", slot);
+		string name = "__tex_image_float_0";
+		name += string_0d(slot,2);
 
 		device->tex_alloc(name.c_str(), tex_img, true, true);
 	}
@@ -401,10 +399,11 @@ void ImageManager::device_load_image(Device *device, DeviceScene *dscene, int sl
 			pixels[3] = 0;
 		}
 
-		string name;
+		string name = "__tex_image_0";
+		name += string_0d(slot,2);
 
-		if(slot >= 10) name = string_printf("__tex_image_0%d", slot);
-		else name = string_printf("__tex_image_00%d", slot);
+		//if(slot >= 10) name = string_printf("__tex_image_0%d", slot);
+		//else name = string_printf("__tex_image_00%d", slot);
 
 		device->tex_alloc(name.c_str(), tex_img, true, true);
 	}

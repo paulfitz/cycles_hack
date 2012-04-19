@@ -221,7 +221,9 @@ void view_main_loop(const char *title, int width, int height,
 	glutMainLoop();
 #else
 	int keypress = 0;
+	int ct = 0;
 	while (!keypress) {
+	  ct++;
 	  view_display();
 #ifdef USE_SDL
 	  SDL_Event event;
@@ -236,6 +238,8 @@ void view_main_loop(const char *title, int width, int height,
 		break;
               }
 	  }
+#else
+	  if (ct>3) keypress = 1;
 #endif
 	}
 #endif

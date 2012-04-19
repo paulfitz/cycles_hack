@@ -137,15 +137,18 @@ public:
 		printf("Waiting for task\n");
 
 		while(tasks.worker_wait_pop(task)) {
-		  printf("GOT A TASK!\n");
-			if(task.type == DeviceTask::PATH_TRACE)
-				thread_path_trace(task);
-			else if(task.type == DeviceTask::TONEMAP)
-				thread_tonemap(task);
-			else if(task.type == DeviceTask::SHADER)
-				thread_shader(task);
-
-			tasks.worker_done();
+		  printf("-\n");
+		  fflush(stdout);
+		  if(task.type == DeviceTask::PATH_TRACE) {
+		    printf("PATH TRACE\n");
+		    thread_path_trace(task);
+		  } else if(task.type == DeviceTask::TONEMAP) {
+		    printf("TONEMAP\n");
+		    thread_tonemap(task);
+		  } else if(task.type == DeviceTask::SHADER) {
+		    thread_shader(task);
+		  }
+		  tasks.worker_done();
 		}
 		printf("Finished\n");
 	}
@@ -246,15 +249,15 @@ public:
 	{
 		/* split task into smaller ones, more than number of threads for uneven
 		   workloads where some parts of the image render slower than others */
-	  printf("ADD task\n");
-		task.split(tasks, 10);
+	  printf("+\n");
+	  task.split(tasks, 100);
 	}
 
 	void task_wait()  {
 	  //tasks.wait_done();
-	  printf("RUN!\n");
+	  printf("<task_wait>\n");
 	  thread_run(0);
-	  printf("Ran.\n");
+	  printf("</task_wait>\n");
 	}
 
 	void task_cancel()

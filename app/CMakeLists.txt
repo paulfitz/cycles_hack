@@ -97,3 +97,5 @@ if (HACK_EMSCRIPTEN)
     .bc)
 
 endif()
+
+add_executable(rejigger_image rejigger_image.cpp)

@@ -48,31 +48,49 @@ public:
 		cancel_cb = NULL;
 	}
 
-	Progress(Progress& progress)
+	Progress(const Progress& progress)
 	{
-		*this = progress;
+	  update_cb = progress.update_cb;
+	  cancel_cb = progress.cancel_cb;
+	  sample = progress.sample;
+	  start_time = progress.start_time;
+	  total_time = progress.total_time;
+	  sample_time = progress.sample_time;
+	  status = progress.status;
+	  substatus = progress.substatus;
+	  cancel = progress.cancel;
+	  cancel_message = progress.cancel_message;
 	}
 
-	Progress& operator=(Progress& progress)
+	const Progress& operator=(const Progress& progress)
 	{
-		thread_scoped_lock lock(progress.progress_mutex);
-
-		progress.get_sample(sample, total_time, sample_time);
-		progress.get_status(status, substatus);
-
-		return *this;
+	  update_cb = progress.update_cb;
+	  cancel_cb = progress.cancel_cb;
+	  sample = progress.sample;
+	  start_time = progress.start_time;
+	  total_time = progress.total_time;
+	  sample_time = progress.sample_time;
+	  status = progress.status;
+	  substatus = progress.substatus;
+	  cancel = progress.cancel;
+	  cancel_message = progress.cancel_message;
+	  // This is too, too strange
+	  //progress.get_sample(sample, total_time, sample_time);
+	  //	progress.get_status(status, substatus);
+	  return *this;
 	}
 
 	/* cancel */
 	void set_cancel(const string& cancel_message_)
 	{
-		thread_scoped_lock lock(progress_mutex);
+	  //thread_scoped_lock lock(progress_mutex);
 		cancel_message = cancel_message_;
 		cancel = true;
 	}
 
 	bool get_cancel()
 	{
+	  //printf("Checking for cancel...\n");
 		if(!cancel && cancel_cb)
 			cancel_cb();
 
@@ -81,7 +99,7 @@ public:
 
 	string get_cancel_message()
 	{
-		thread_scoped_lock lock(progress_mutex);
+	  //	thread_scoped_lock lock(progress_mutex);
 		return cancel_message;
 	}
 
@@ -94,14 +112,14 @@ public:
 
 	void set_start_time(double start_time_)
 	{
-		thread_scoped_lock lock(progress_mutex);
+	  //thread_scoped_lock lock(progress_mutex);
 
 		start_time = start_time_;
 	}
 
 	void set_sample(int sample_, double sample_time_)
 	{
-		thread_scoped_lock lock(progress_mutex);
+	  //thread_scoped_lock lock(progress_mutex);
 
 		sample = sample_;
 		total_time = time_dt() - start_time;
@@ -110,7 +128,7 @@ public:
 
 	void get_sample(int& sample_, double& total_time_, double& sample_time_)
 	{
-		thread_scoped_lock lock(progress_mutex);
+	  //thread_scoped_lock lock(progress_mutex);
 
 		sample_ = sample;
 		total_time_ = (total_time > 0.0)? total_time: 0.0;
@@ -122,7 +140,7 @@ public:
 	void set_status(const string& status_, const string& substatus_ = "")
 	{
 		{
-			thread_scoped_lock lock(progress_mutex);
+		  //thread_scoped_lock lock(progress_mutex);
 			status = status_;
 			substatus = substatus_;
 			total_time = time_dt() - start_time;
@@ -134,7 +152,7 @@ public:
 	void set_substatus(const string& substatus_)
 	{
 		{
-			thread_scoped_lock lock(progress_mutex);
+		  //thread_scoped_lock lock(progress_mutex);
 			substatus = substatus_;
 			total_time = time_dt() - start_time;
 		}
@@ -144,7 +162,7 @@ public:
 
 	void get_status(string& status_, string& substatus_)
 	{
-		thread_scoped_lock lock(progress_mutex);
+	  //thread_scoped_lock lock(progress_mutex);
 		status_ = status;
 		substatus_ = substatus;
 	}
@@ -163,7 +181,6 @@ public:
 	}
 
 protected:
-	thread_mutex progress_mutex;
 	boost_function_void_void update_cb;
 	boost_function_void_void cancel_cb;
 
@@ -176,7 +193,7 @@ protected:
 	string status;
 	string substatus;
 
-	volatile bool cancel;
+	bool cancel;
 	string cancel_message;
 };
 

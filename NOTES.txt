@@ -1,0 +1,48 @@
+
+Notes to self, to guide clean-up
+
+====
+
+util_progress.h
+  Constructor and especially operator= looked a bit strange.
+
+sobol
+  Chokes JS minifiers.
+  Adequate solution is to truncate the massive static list to the
+  length used in application.
+
+boost dependencies
+  Should be ok just to compile them.  I chose to remove boost entirely,
+  as a way to be sure I'd eliminated use of threads, mutexes etc.
+  Everything easy to replace.  Took a wrong path on BOOST_FOREACH;
+  easiest fix here is to move up to C++11 / C++0x and do -
+    #define foreach(x,y) for(x : y)
+
+====
+
+Current "winning" js compilation method.
+* Take emscripten
+* Hack it as follows
+  @staticmethod
+  def llvm_opt(filename, opts):
+    if type(opts) is int:
+      opts = Building.pick_llvm_opts(opts)
+    opts = ['-globaldce','-internalize','-O3'] # <--- add this line
+* Do:
+    make ; rm -rf /tmp/emscripten_temp; EMCC_DEBUG=1 emcc --embed-file elephant.xml --embed-file gumbo.xml ./app/cycles_test.bc -O2 --closure 0 -o cycles_test.js
+* Check "node <foo>.js" on cycles_test.js, and steps in /tmp/emscripten_temp
+* It appears to be safe to run closure on the result
+     closure cycles_test.js c5.js
+where closure is
+  CLOSURE_COMPILER="$HOME/cvs/emscripten/third_party/closure-compiler/compiler.jar"
+  level="ADVANCED_OPTIMIZATIONS"
+  # level="SIMPLE_OPTIMIZATIONS"
+  java -Xmx1024m -jar $CLOSURE_COMPILER --compilation_level $level --js $1 --js_output_file $2
+
+$ ls -l c5.js 
+-rw-r--r-- 1 paulfitz paulfitz 1643715 Apr 19 16:22 c5.js
+
+Can currently check output with:
+  time node c5.js > logx2
+  ../build/app/rejigger_image logx2 logx2.ppm  # ../build is native
+  display logx2.ppm # should see two grainy elephants if you squint
